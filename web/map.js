@@ -125,10 +125,9 @@ redraw = function(e) {
   
   // draw a circle of center p and radius km
   circle = function(p, km) {
-    context.beginPath();
     var pix = latlng_to_screen(p);
-    context.arc(pix.x, pix.y, km_to_pixels(p, km), 0, 2*Math.PI);
-    context.fill();
+    context.moveTo(pix.x, pix.y);
+	context.arc(pix.x, pix.y, km_to_pixels(p, km), 0, 2*Math.PI);
   };
   
   /* draw layers */
@@ -138,7 +137,8 @@ redraw = function(e) {
     context.fillStyle = layers[layer].color;
     
     /* accessible without shortcut */
-    circle(earthmouse, timeavailable * speed);
+    context.beginPath();
+	circle(earthmouse, timeavailable * speed);
     
     /* with shortcuts */
     for(i=0; i<pos.length; i++){
@@ -149,6 +149,7 @@ redraw = function(e) {
         circle(pos[i], remaining_distance);
       }
     }
+	context.fill();
   }
   
   /* make all this transparent */
