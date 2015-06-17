@@ -42,6 +42,7 @@ var names = new Array("London", "Berlin", "Madrid", "Rome", "Paris", "Vienna",
 
 /* enable debugging */
 var DEBUG=0;
+var PRINT_TIMES_TO_CITIES=0;
 var resetdebug = function() {if(DEBUG){document.getElementById('debug').innerHTML="";}}
 var debug = function(t) {if(DEBUG){document.getElementById('debug').innerHTML+=t+"<br />\n";}}
 
@@ -76,14 +77,32 @@ var k = function (x){return function(){return x;}};
 var latlng_to_pair = function(c){return [c.lat(), c.lng()];};
 var pair_to_latlng = function(p){return {lat:k(p[0]), lng:k(p[1])};};
 
+var nb_redraws = 0;
+
+/* list of 'layers' */
+layers = [
+  {time: 80*60, color:"#008"},
+  {time: 40*60, color:"#80f"},
+  {time: 20*60, color:"#f08"},
+  {time: 15*60, color:"#f00"},
+  {time: 10*60, color:"#f80"},
+  {time: 7*60, color:"#ff0"},
+  {time: 5*60, color:"#8f0"},
+  {time: 3*60, color:"#0f0"},
+  {time: 2*60, color:"#8f8"},
+  {time: 1*60, color:"#fff"}
+];
+
 /* draw */
-mov = function(e) {
+redraw = function(e) {
   resetdebug();
+  nb_redraws++;
+  debug(nb_redraws);
   
   // mouse position is computed properly when zooming, but not when
   // moving, I don't know why
   earthmouse = latlng_to_pair(latlng_from_screen(e.layerX, e.layerY));
-  debug(earthmouse); 
+  debug("mouse: " + earthmouse);
   
   var canvas = document.getElementById("canvas");
   var context = canvas.getContext("2d");
@@ -112,20 +131,6 @@ mov = function(e) {
     context.fill();
   };
   
-  /* list of 'layers' */
-  layers = [
-    {time: 80*60, color:"#008"},
-    {time: 40*60, color:"#80f"},
-    {time: 20*60, color:"#f08"},
-    {time: 15*60, color:"#f00"},
-    {time: 10*60, color:"#f80"},
-    {time: 7*60, color:"#ff0"},
-    {time: 5*60, color:"#8f0"},
-    {time: 3*60, color:"#0f0"},
-    {time: 2*60, color:"#8f8"},
-    {time: 1*60, color:"#fff"}
-  ];
-  
   /* draw layers */
   var layer;
   for(layer = 0; layer < layers.length; layer++) {
@@ -137,7 +142,8 @@ mov = function(e) {
     
     /* with shortcuts */
     for(i=0; i<pos.length; i++){
-      if(layer==0) debug("time to " + names[i] + ": " + Math.floor(timetoreach[i] / 60) + "h" + Math.floor(timetoreach[i] % 60) + "m");
+      if(layer==0 && PRINT_TIMES_TO_CITIES)
+        debug("time to " + names[i] + ": " + Math.floor(timetoreach[i] / 60) + "h" + Math.floor(timetoreach[i] % 60) + "m");
       remaining_distance = (timeavailable - timetoreach[i]) * speed;
       if(remaining_distance > 0) {
         circle(pos[i], remaining_distance);
@@ -151,6 +157,15 @@ mov = function(e) {
   context.fillStyle = "rgba(0,0,0,0.7)";
   context.fillRect(0, 0, canvas.width, canvas.height);
   context.restore();
+  
+  /* mark cities */
+  context.fillStyle = "rgba(0,0,0,0.5)";
+  for(i=0; i<pos.length; i++){
+    context.beginPath();
+    var pix = latlng_to_screen(pos[i]);
+    context.arc(pix.x, pix.y, 2, 0, 2*Math.PI);
+    context.fill();
+  }
 }
 
 /* conversion function */
@@ -164,11 +179,15 @@ init = function() {
   context.canvas.width = window.innerWidth;
   context.canvas.height = window.innerHeight;
   
-  canvas.onmousemove = mov;
-  canvas.onclick = mov;
-  // canvas.ontouchmove = mov;
-  // canvas.addEventListener('touchstart', mov, false); //does not work properly
-  // canvas.addEventListener('touchmove', mov, false);
+  if(requestAnimationFrame) {
+    canvas.onmousemove = (function(e){requestAnimationFrame(function(){redraw(e);});});
+  } else {
+    canvas.onmousemove = redraw;
+  }
+  canvas.onclick = redraw;
+  // canvas.ontouchmove = redraw;
+  // canvas.addEventListener('touchstart', redraw, false); //does not work properly
+  // canvas.addEventListener('touchmove', redraw, false);
   
   overlay = new google.maps.OverlayView();
   overlay.draw = function(e) {};
