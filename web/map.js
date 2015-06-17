@@ -84,24 +84,24 @@ redraw = function(e) {
       }
     }
   }
-  
+
   // draw a circle of center p and radius km
   circle = function(p, km) {
-    context.beginPath();
     var pix = latlng_to_screen(p);
+    context.moveTo(pix.x, pix.y);
     context.arc(pix.x, pix.y, km_to_pixels(p, km), 0, 2*Math.PI);
-    context.fill();
   };
-  
+
   /* draw layers */
   var layer;
   for(layer = 0; layer < layers.length; layer++) {
     timeavailable = layers[layer].time;
     context.fillStyle = layers[layer].color;
-    
+
     /* accessible without shortcut */
+    context.beginPath();
     circle(earthmouse, timeavailable * speed);
-    
+
     /* with shortcuts */
     for(i=0; i<nbcities; i++){
       if(layer==0 && PRINT_TIMES_TO_CITIES)
@@ -111,6 +111,7 @@ redraw = function(e) {
         circle(pos[i], remaining_distance);
       }
     }
+    context.fill();
   }
   
   /* make all this transparent */
