@@ -42,9 +42,9 @@ var nb_redraws = 0;
 
 /* list of 'layers' */
 layers = [
-  {time: 80*60, color:"#008"},
-  {time: 40*60, color:"#80f"},
-  {time: 20*60, color:"#f08"},
+  // {time: 80*60, color:"#008"},
+  // {time: 40*60, color:"#80f"},
+  // {time: 20*60, color:"#f08"},
   {time: 15*60, color:"#f00"},
   {time: 10*60, color:"#f80"},
   {time: 7*60, color:"#ff0"},
@@ -55,14 +55,16 @@ layers = [
 ];
 
 /* draw */
-redraw = function(e) {
+redraw = function(mouse, ispixel) {
   resetdebug();
   nb_redraws++;
   debug(nb_redraws);
   
   // mouse position is computed properly when zooming, but not when
   // moving, I don't know why
-  earthmouse = latlng_to_pair(latlng_from_screen(e.layerX, e.layerY));
+  var earthmouse = mouse;
+  if(ispixel)
+    earthmouse = latlng_to_pair(latlng_from_screen(mouse.x, mouse.y));
   debug("mouse: " + earthmouse);
   
   var canvas = document.getElementById("canvas");
@@ -86,10 +88,18 @@ redraw = function(e) {
   }
 
   // draw a circle of center p and radius km
-  circle = function(p, km) {
+  dummy_circle = function(p, km) {
     var pix = latlng_to_screen(p);
     context.moveTo(pix.x, pix.y);
     context.arc(pix.x, pix.y, km_to_pixels(p, km), 0, 2*Math.PI);
+  };
+
+  // draw a circle of center p and radius km, assuming mercator
+  circle = function(p, km) {
+    var top    = latlng_to_screen([p[0]+km/6371*180/Math.PI, p[1]]);
+    var bottom = latlng_to_screen([p[0]-km/6371*180/Math.PI, p[1]]);
+    context.moveTo(top.x, (top.y + bottom.y)/2);
+    context.arc(top.x, (top.y + bottom.y)/2, -(top.y - bottom.y)/2, 0, 2*Math.PI);
   };
 
   /* draw layers */
@@ -142,19 +152,35 @@ init = function() {
   context.canvas.width = window.innerWidth;
   context.canvas.height = window.innerHeight;
   
+  draw = function(e) {redraw({x:e.layerX, y:e.layerY}, true)};
   if(requestAnimationFrame) {
-    canvas.onmousemove = (function(e){requestAnimationFrame(function(){redraw(e);});});
+    canvas.onmousemove = (function(e){
+      requestAnimationFrame(function(){draw(e);});
+    });
   } else {
-    canvas.onmousemove = redraw;
+    canvas.onmousemove = draw;
   }
-  canvas.onclick = redraw;
+  canvas.onclick = draw;
   // canvas.ontouchmove = redraw;
   // canvas.addEventListener('touchstart', redraw, false); //does not work properly
   // canvas.addEventListener('touchmove', redraw, false);
   
   overlay = new google.maps.OverlayView();
   overlay.draw = function(e) {};
-  overlay.setMap(new google.maps.Map(document.getElementById('map'), {center: new google.maps.LatLng(48,7), zoom: 5}));
+  //#15/52.2007/0.1306-
+  var options = {center: new google.maps.LatLng(48,7), zoom: 5};
+  // var zoom = parseInt(window.location.hash.substr(1).split('/')[0]);
+  // if(zoom) {
+  //   var lat = window.location.hash.substr(1).split('-')[0].split('/')[1];
+  //   var lng = window.location.hash.substr(1).split('-')[0].split('/')[2];
+  //   options = {center: new google.maps.LatLng(lat,lng), zoom: zoom};
+  //   var latd = window.location.hash.substr(1).split('-')[1].split('/')[0];
+  //   var lngd = window.location.hash.substr(1).split('-')[1].split('/')[0];
+  //   if(latd||lngd) {
+  //     canvas.onmousemove = "";
+  //   }
+  // }
+  overlay.setMap(new google.maps.Map(document.getElementById('map'), options));
 };
 
 window.addEventListener('load', function(){window.setTimeout(init, 500);});
