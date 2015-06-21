@@ -1,5 +1,4 @@
 var nbcities = v.length;
-var nbcities = 105; //lower is faster
 
 /* the earth */
 var earth_sphere = new ol.Sphere(6371000);
