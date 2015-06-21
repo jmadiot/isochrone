@@ -163,7 +163,7 @@ let gray = rgb 127 127 127
 
 let dist (x, y) (x', y') = sqrt ((x -. x') *. (x -. x') +. (y -. y') *. (y -. y'))
 
-let () =
+let u () =
   for i = 0 to 21 do
     for j = 0 to i-1 do
       printf "%d (%s - %s : aller=%d retour=%d\n" (abs (d.(i).(j) - d.(j).(i)))
@@ -171,7 +171,7 @@ let () =
     done
   done
 
-let u () =
+let () =
   let ok = ref true in
   auto_synchronize false;
   (* try set_font "arial" with _ -> (); *)
