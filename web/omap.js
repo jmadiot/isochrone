@@ -15,15 +15,14 @@ var PRINT_TIMES_TO_CITIES=0;
 var resetdebug = function() {if(DEBUG){document.getElementById('debug').innerHTML="";}}
 var debug = function(t) {if(DEBUG){document.getElementById('debug').innerHTML+=t+"<br />\n";}}
 
-/* Distance between two (lat, lng) pairs */
+/* Distance between two (lng, lat) pairs */
 var dist = function(pos1, pos2) {
-  var latdiff = Math.PI / 180 * (pos2[0] - pos1[0]);
-  var londiff = Math.PI / 180 * (pos2[1] - pos1[1]); 
+  var latdiff = Math.PI / 180 * (pos2[1] - pos1[1]);
+  var londiff = Math.PI / 180 * (pos2[0] - pos1[0]);
   var a = Math.sin(latdiff / 2) * Math.sin(latdiff / 2) +
-    Math.cos(Math.PI / 180 * pos1[0]) * Math.cos(Math.PI / 180 * pos2[0]) * 
-    Math.sin(londiff / 2) * Math.sin(londiff / 2); 
-  var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
-  var d = 6371 * c;
+    Math.cos(Math.PI / 180 * pos1[1]) * Math.cos(Math.PI / 180 * pos2[1]) *
+    Math.sin(londiff / 2) * Math.sin(londiff / 2);
+  var d = 6371 * 2 * Math.asin(Math.sqrt(a));
   return Math.abs(d);
 }
 
