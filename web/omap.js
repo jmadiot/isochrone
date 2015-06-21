@@ -1,11 +1,13 @@
 var nbcities = v.length;
-var nbcities = 105; //lower is faster
 
 /* the earth */
 var earth_sphere = new ol.Sphere(6371000);
 
 /* the map layer */
 var vectorLayer = [];
+
+/* prevent redraw */
+var freeze = false;
 
 /* enable debugging */
 var DEBUG=0;
@@ -54,6 +56,8 @@ layers = [
 
 /* draw */
 redraw = function(e) {
+  /* if the map was clicked, don't update it */
+  if(freeze){return;}
   resetdebug();
   nb_redraws++;
   debug(nb_redraws);
@@ -123,30 +127,15 @@ redraw = function(e) {
     vectorLayer[layer].getSource().addFeature(new ol.Feature(layerCircles));
 
   }
-
-  /* make all this transparent */
-  //context.save();
-  //context.globalCompositeOperation = "destination-out";
-  //context.fillStyle = "rgba(0,0,0,0.7)";
-  //context.fillRect(0, 0, canvas.width, canvas.height);
-  //context.restore();
-
-  /* mark cities */ // TODO
-  //  context.fillStyle = "rgba(0,0,0,0.5)";
-  //  for(i=0; i<nbcities; i++){
-  //    context.beginPath();
-  //    var pix = latlng_to_screen(pos[i]);
-  //    context.arc(pix.x, pix.y, 2, 0, 2*Math.PI);
-  //    context.fill();
-  //  }
 }
 
-/* style for locations: TODO*/
+/* style for locations: */
 var locationsStyle = new ol.style.Style({
   image: new ol.style.Circle({
     radius: 3,
     fill: new ol.style.Fill({color: "rgba(0,0,0,0.2)"})
-})});
+  })
+});
 
 /* set up overlay, map and listeners */
 init = function() {
@@ -202,19 +191,20 @@ init = function() {
     })
   });
 
-  // TODO: fill locationsLayer with points ...
+  // fill locationsLayer with points 
   for(i=0; i<nbcities; i++){
     var newpoint = new ol.geom.Point(pos[i]); // put p[i] here
     locationsLayer.getSource().addFeature(new ol.Feature(newpoint.transform('EPSG:4326', 'EPSG:3857'))); 
   }
 
+  /* freeze the map on click */
+  map.on('singleclick', function(){freeze = !freeze;});
+
   if(requestAnimationFrame) {
     map.on('pointermove', function(e){requestAnimationFrame(function(){redraw(e);});});
   } else {
-    //map.singleckick = redraw;
+    map.on('pointermove', redraw);
   }
-
-  //.LatLng(48,7), zoom: 5}));
 };
 
 window.addEventListener('load', function(){window.setTimeout(init, 500);});
