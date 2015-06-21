@@ -1,5 +1,5 @@
 var nbcities = v.length;
-var nbcities = 85; //lower is faster
+var nbcities = 105; //lower is faster
 
 /* enable debugging */
 var DEBUG=0;

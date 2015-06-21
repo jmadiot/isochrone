@@ -1,5 +1,5 @@
 var nbcities = v.length;
-var nbcities = 85; //lower is faster
+var nbcities = 105; //lower is faster
 
 /* the earth */
 var earth_sphere = new ol.Sphere(6371000);
@@ -132,8 +132,7 @@ init = function() {
   for(i=0; i<layers.length; i++){
     var newstyle = new ol.style.Style({
       fill: new ol.style.Fill({
-        color: layers[i].color,
-
+        color: layers[i].color
       })
     });
     vectorLayer[i] = new ol.layer.Vector({
