@@ -25,6 +25,14 @@ var dist = function(pos1, pos2) {
   return Math.abs(d);
 }
 
+var nicetime = function(minutes) {
+  var h = Math.floor(minutes/60);
+  var m = Math.floor(minutes%60);
+  var z = (m<10)?'0':'';
+  return h + ":" + z + m;
+}
+var closest_cities = new Array();
+
 /* kms per minute, used to compute travel times without shorcuts */
 var speed = 1;
 
@@ -61,8 +69,10 @@ redraw = function(e) {
   // computing time to reach each city from earthmouse
   time_by_car = new Array();
   timetoreach = new Array();
+  via = new Array();
   for(i=0;i<nbcities;i++){
     timetoreach[i] = time_by_car[i] = dist(earthmouse, pos[i]) / speed;
+    via[i] = "";
   }
   for(i=0;i<nbcities;i++){
     for(j=0;j<nbcities;j++){
@@ -70,10 +80,19 @@ redraw = function(e) {
       newtime = time_by_car[i] + v[i][j];
       if(newtime < timetoreach[j]) {
         timetoreach[j] = newtime;
+        via[j] = " (via " + names[i] + ")";
       }
     }
   }
 
+  /* display closest cities */
+  var closest = timetoreach.map(function(x,i){return [x,i]}).sort(function(x,y){return x[0]-y[0]});
+  closest_cities.map(function(span, i){
+    if(closest[i][0]<24*60)
+      span.innerHTML = nicetime(closest[i][0]) + " to " + names[closest[i][1]] + via[closest[i][1]] + " <br/>\n"
+    else
+      span.innerHTML = '';
+  });
 
   // draw a circle of center p and radius km on layer l
   circle = function(p, km) {
@@ -158,6 +177,12 @@ init = function() {
     style: locationsStyle
   });
 
+  var nb_of_closest_cities = 15;
+  for(i=0;i<nb_of_closest_cities;i++) {
+    closest_cities[i] = document.createElement('span');
+    closest_cities[i].style.opacity = 1-i/nb_of_closest_cities;
+    document.getElementById('closest').appendChild(closest_cities[i]);
+  }
 
   // the background map
   var backgroundLayer =  new ol.layer.Tile({
