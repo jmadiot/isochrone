@@ -1,0 +1,10 @@
+* Isochrone
+Isochrone is an interactive [[https://en.wikipedia.org/wiki/Isochrone_map][isochrone map]] taking into account trains
+and planes, using our best guesses.  Pretty colored circles ensue.
+
+* Demo
+Go see [[https://madiot.fr/map.html][this demo]] (google map) or [[https://madiot.fr/omap.html][this one]] (open layers).
+
+* TODO
+** DONE list of nearest cities
+** for cities in north america, Y position is not taken into account correctly, fix this
