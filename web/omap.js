@@ -7,6 +7,9 @@ var earth_sphere = new ol.Sphere(6371000);
 /* the map layer */
 var vectorLayer = [];
 
+/* prevent redraw */
+var freeze = false;
+
 /* enable debugging */
 var DEBUG=0;
 var PRINT_TIMES_TO_CITIES=0;
@@ -46,6 +49,8 @@ layers = [
 
 /* draw */
 redraw = function(e) {
+  /* if the map was clicked, don't update it */
+  if(freeze){return;}
   resetdebug();
   nb_redraws++;
   debug(nb_redraws);
@@ -169,10 +174,13 @@ init = function() {
     locationsLayer.getSource().addFeature(new ol.Feature(newpoint.transform('EPSG:4326', 'EPSG:3857'))); 
   }
 
+  /* freeze the map on click */
+  map.on('singleclick', function(){freeze = !freeze;});
+
   if(requestAnimationFrame) {
     map.on('pointermove', function(e){requestAnimationFrame(function(){redraw(e);});});
   } else {
-    //map.singleckick = redraw;
+    map.on('pointermove', redraw);
   }
 };
 
