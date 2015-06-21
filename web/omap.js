@@ -124,8 +124,10 @@ redraw = function(e) {
 
 /* style for locations: TODO*/
 var locationsStyle = new ol.style.Style({
-});
-
+  image: new ol.style.Circle({
+    radius: 3,
+    fill: new ol.style.Fill({color: "rgba(0,0,0,0.2)"})
+})});
 
 /* set up overlay, map and listeners */
 init = function() {
@@ -153,8 +155,8 @@ init = function() {
 
   /* layer for the locations */
   var locationsLayer = new ol.layer.Vector({
-    source: new ol.source.Vector()
-      //  , style: locationsStyle //TODO
+    source: new ol.source.Vector(),
+    style: locationsStyle
   });
 
 
@@ -180,7 +182,7 @@ init = function() {
   for(i=0; i<nbcities; i++){
     var newpoint = new ol.geom.Point(pos[i]); // put p[i] here
     locationsLayer.getSource().addFeature(new ol.Feature(newpoint.transform('EPSG:4326', 'EPSG:3857'))); 
-  }  
+  }
 
   if(requestAnimationFrame) {
     map.on('pointermove', function(e){requestAnimationFrame(function(){redraw(e);});});
