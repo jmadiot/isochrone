@@ -104,30 +104,15 @@ redraw = function(e) {
     vectorLayer[layer].getSource().addFeature(new ol.Feature(layerCircles));
 
   }
-
-  /* make all this transparent */
-  //context.save();
-  //context.globalCompositeOperation = "destination-out";
-  //context.fillStyle = "rgba(0,0,0,0.7)";
-  //context.fillRect(0, 0, canvas.width, canvas.height);
-  //context.restore();
-
-  /* mark cities */ // TODO
-  //  context.fillStyle = "rgba(0,0,0,0.5)";
-  //  for(i=0; i<nbcities; i++){
-  //    context.beginPath();
-  //    var pix = latlng_to_screen(pos[i]);
-  //    context.arc(pix.x, pix.y, 2, 0, 2*Math.PI);
-  //    context.fill();
-  //  }
 }
 
-/* style for locations: TODO*/
+/* style for locations: */
 var locationsStyle = new ol.style.Style({
   image: new ol.style.Circle({
     radius: 3,
     fill: new ol.style.Fill({color: "rgba(0,0,0,0.2)"})
-})});
+  })
+});
 
 /* set up overlay, map and listeners */
 init = function() {
@@ -178,7 +163,7 @@ init = function() {
     })
   });
 
-  // TODO: fill locationsLayer with points ...
+  // fill locationsLayer with points 
   for(i=0; i<nbcities; i++){
     var newpoint = new ol.geom.Point(pos[i]); // put p[i] here
     locationsLayer.getSource().addFeature(new ol.Feature(newpoint.transform('EPSG:4326', 'EPSG:3857'))); 
@@ -189,8 +174,6 @@ init = function() {
   } else {
     //map.singleckick = redraw;
   }
-
-  //.LatLng(48,7), zoom: 5}));
 };
 
 window.addEventListener('load', function(){window.setTimeout(init, 500);});
