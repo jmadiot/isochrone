@@ -59,15 +59,25 @@ layers = [
 ];
 
 /* draw */
-redraw = function(e) {
+var last_e_coordinate = [0,0];
+var e_coordinate = [0,0];
+var nextupdate = 1;
+redraw = function() {
+  requestAnimationFrame(redraw);
+  
   /* if the map was clicked, don't update it */
   if(freeze){return;}
+  
+  if(last_e_coordinate == e_coordinate && !nextupdate) return;
+  last_e_coordinate = e_coordinate;
+  nextupdate = 0;
+  
   resetdebug();
   nb_redraws++;
   debug(nb_redraws);
 
   /* get LonLat from pointer coordinates */
-  earthmouse = ol.proj.transform(e.coordinate, 'EPSG:3857', 'EPSG:4326');
+  earthmouse = ol.proj.transform(e_coordinate, 'EPSG:3857', 'EPSG:4326');
   debug("mouse: " + earthmouse);
 
   /* clear the layers */
@@ -115,6 +125,7 @@ redraw = function(e) {
   }
   
   /* display closest cities/airports */
+  /* // this displays way too much text now, it's useless
   var closest = [];
   closest = closest.concat(    timetoreach.map(function(time,i){return [time,       names[i],    via[i]]}));
   closest = closest.concat(air_timetoreach.map(function(time,i){return [time,airport_name[i],air_via[i]]}));
@@ -125,6 +136,7 @@ redraw = function(e) {
     else
       span.innerHTML = '';
   });
+  */
   
   // draw a circle of center p and radius km on layer l
   circle = function(p, km) {
@@ -237,20 +249,21 @@ init = function() {
     var newpoint = new ol.geom.Point(airport_pos[i]);
     locationsLayer.getSource().addFeature(new ol.Feature(newpoint.transform('EPSG:4326', 'EPSG:3857'))); 
   }
-
+  
   /* freeze the map on click */
-  map.on('singleclick', function(){freeze = !freeze;});
-
-  if(requestAnimationFrame) {
-    map.on('pointermove', function(e){requestAnimationFrame(function(){redraw(e);});});
-  } else {
-    map.on('pointermove', redraw);
-  }
+  map.on('singleclick', function(){freeze = !freeze; nextupdate=1;});
+  
+  /* update mouse position */
+  map.on('pointermove', function(e){e_coordinate = e.coordinate;});
+  
+  /* give the refresh decision to requestAnimationFrame */
+  requestAnimationFrame(redraw);
   
   window.addEventListener('keydown', function(e) {
     switch (String.fromCharCode(e.keyCode).toLowerCase()) {
       case "a": AIRPORTS ^= 1;
     }
+    nextupdate=1;
   });
 };
 
