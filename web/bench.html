@@ -1,0 +1,16 @@
+<html>
+  <head>
+    <title>bench</title>
+    <script src="bench.js"></script>
+  </head>
+  <body>
+    <canvas id="testing" style="position:absolute; left:0; top:0;"></canvas>
+    <canvas id="results" style="position:absolute; right:0; top:0;"></canvas>
+    <div id="debug" style="position:absolute; right:0; bottom:10px; width:600px; font-family:monospace;"></div>
+    <div style="position:absolute; right:0; top:10px; width:150px; font-family:monospace;">
+      <a href="javascript:document.getElementById('c').innerHTML=DRAW_CIRCLES^=1;">toggle circles (<span id="c">1</span>)</a><br />
+      <a href="javascript:document.getElementById('g').innerHTML=DRAW_GRID^=1;">toggle grid (<span id="g">1</span>)</a>
+      <a href="javascript:document.getElementById('r').innerHTML=DRAW_ROUTES^=1;">toggle routes (<span id="g">1</span>)</a>
+    </div>
+  </body>
+</html>
